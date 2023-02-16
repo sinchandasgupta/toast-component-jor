@@ -1,8 +1,9 @@
 import React from "react";
 
 import Button from "../Button";
-import Toast from "../Toast/Toast";
 import ToastShelf from "../ToastShelf/ToastShelf";
+
+import { ToastContext } from "../ToastProvider";
 
 import styles from "./ToastPlayground.module.css";
 
@@ -11,29 +12,7 @@ const VARIANT_OPTIONS = ["notice", "warning", "success", "error"];
 function ToastPlayground() {
   const [variant, setVariant] = React.useState("notice");
   const [message, setMessage] = React.useState("");
-  const [isShown, setIsShown] = React.useState(false);
-  const [toasts, setToasts] = React.useState([]);
-
-  function addToast(e) {
-    e.preventDefault();
-    const nextToasts = [
-      ...toasts,
-      {
-        id: crypto.randomUUID(),
-        message,
-        variant,
-      },
-    ];
-    setToasts(nextToasts);
-  }
-
-  function removeToast(id) {
-    const nextToasts = toasts.filter((toast) => {
-      return toast.id !== id;
-    });
-
-    setToasts(nextToasts);
-  }
+  const { addToast } = React.useContext(ToastContext);
 
   return (
     <div className={styles.wrapper}>
@@ -41,9 +20,15 @@ function ToastPlayground() {
         <img alt="Cute toast mascot" src="/toast.png" />
         <h1>Toast Playground</h1>
       </header>
-      <ToastShelf toasts={toasts} removeToast={removeToast} />
+      <ToastShelf />
 
-      <form className={styles.controlsWrapper} onSubmit={addToast}>
+      <form
+        className={styles.controlsWrapper}
+        onSubmit={(e) => {
+          e.preventDefault();
+          addToast(message, variant);
+        }}
+      >
         <div className={styles.row}>
           <label
             htmlFor="message"
